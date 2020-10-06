@@ -170,9 +170,16 @@ class SimpleRsaPlugin() : MethodCallHandler {
 
     @Throws(NoSuchAlgorithmException::class, NoSuchPaddingException::class, InvalidKeyException::class, IllegalBlockSizeException::class, BadPaddingException::class)
     private fun decryptData(encryptedBytes: ByteArray, privateKey: String): String {
-        val cipher1 = Cipher.getInstance("RSA/ECB/PKCS1PADDING")
+        /*val cipher1 = Cipher.getInstance("RSA/ECB/PKCS1PADDING")
         cipher1.init(Cipher.DECRYPT_MODE, loadPrivateKey(privateKey))
+        val decryptedBytes = cipher1.doFinal(encryptedBytes)*/
+        
+        val raw = Base64.decode(privateKey, Base64.DEFAULT)
+        val pkcs8EncodedKeySpec = PKCS8EncodedKeySpec(raw)
+        val cipher1 = Cipher.getInstance("RSA/NONE/OAEPPadding")
+        cipher1.init(Cipher.DECRYPT_MODE, KeyFactory.getInstance("RSA").generatePrivate(pkcs8EncodedKeySpec));
         val decryptedBytes = cipher1.doFinal(encryptedBytes)
+        
         return String(decryptedBytes)
     }
 
